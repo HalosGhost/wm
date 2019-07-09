@@ -4,21 +4,22 @@ signed
 main (void) {
 
     Display * dpy = 0;
-    XWindowAttributes attr;
-    XButtonEvent start;
-
     if ( !(dpy = XOpenDisplay(0)) ) { return EXIT_FAILURE; }
 
+    Window root = DefaultRootWindow(dpy);
+
     XGrabKey(dpy, XKeysymToKeycode(dpy, XStringToKeysym("F1")), Mod1Mask,
-            DefaultRootWindow(dpy), True, GrabModeAsync, GrabModeAsync);
-    XGrabButton(dpy, 1, Mod1Mask, DefaultRootWindow(dpy), True,
+            root, true, GrabModeAsync, GrabModeAsync);
+    XGrabButton(dpy, 1, Mod1Mask, root, true,
             ButtonPressMask|ButtonReleaseMask|PointerMotionMask, GrabModeAsync, GrabModeAsync, None, None);
-    XGrabButton(dpy, 3, Mod1Mask, DefaultRootWindow(dpy), True,
+    XGrabButton(dpy, 3, Mod1Mask, root, true,
             ButtonPressMask|ButtonReleaseMask|PointerMotionMask, GrabModeAsync, GrabModeAsync, None, None);
 
-    start.subwindow = None;
     do {
-        XEvent ev;
+        static XWindowAttributes attr;
+        static XButtonEvent start = { .subwindow = None };
+
+        static XEvent ev;
         XNextEvent(dpy, &ev);
 
         switch ( ev.type ) {
