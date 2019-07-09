@@ -8,6 +8,11 @@ main (void) {
 
     Window root = DefaultRootWindow(dpy);
 
+    XWindowAttributes attr;
+    XGetWindowAttributes(dpy, root, &attr);
+
+    XSelectInput(dpy, root, SubstructureNotifyMask);
+
     XGrabKey(dpy, XKeysymToKeycode(dpy, XStringToKeysym("d")), Mod1Mask,
             root, true, GrabModeAsync, GrabModeAsync);
 
@@ -16,6 +21,10 @@ main (void) {
         XNextEvent(dpy, &ev);
 
         switch ( ev.type ) {
+            case MapNotify:
+                XMoveResizeWindow(dpy, ev.xmap.window, 0, 0, (unsigned )attr.width, (unsigned )attr.height);
+                break;
+
             case KeyPress:
                 if ( fork() != -1 && setsid() != -1 ) {
                     execv(*launcher, launcher);
