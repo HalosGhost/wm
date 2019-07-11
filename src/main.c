@@ -21,8 +21,8 @@ main (void) {
         XNextEvent(dpy, &ev);
 
         switch ( ev.type ) {
-            case MapNotify:
-                XMoveResizeWindow(dpy, ev.xmap.window, 0, 0, (unsigned )attr.width, (unsigned )attr.height);
+            case CreateNotify:
+                XMoveResizeWindow(dpy, ev.xcreatewindow.window, 0, 0, (unsigned )attr.width, (unsigned )attr.height);
                 break;
 
             case KeyPress:
