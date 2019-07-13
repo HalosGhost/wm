@@ -12,3 +12,10 @@ static char * const launcher [] = {
     NULL
 };
 
+struct view {
+    unsigned char split_ratio;
+    signed char stack_count;
+};
+
+static const struct view def_view = { .split_ratio = 1, .stack_count = 0 };
+
