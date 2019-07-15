@@ -1,10 +1,12 @@
 #include "main.h"
 
 signed
-main (void) {
+main (int argc, char * argv []) {
 
     Display * dpy = 0;
-    if ( !(dpy = XOpenDisplay(0)) ) { return EXIT_FAILURE; }
+    if ( !(dpy = XOpenDisplay(0)) || argc < 1 ) { return EXIT_FAILURE; }
+
+    openlog(argv[0], 0, LOG_USER);
 
     Window root = DefaultRootWindow(dpy);
 
@@ -16,9 +18,15 @@ main (void) {
     XGrabKey(dpy, XKeysymToKeycode(dpy, XStringToKeysym("d")), Mod1Mask,
             root, true, GrabModeAsync, GrabModeAsync);
 
+    Window * children = 0;
+    unsigned i = 0;
+
     do {
         static XEvent ev;
         XNextEvent(dpy, &ev);
+
+        static Window rt, par;
+        XQueryTree(dpy, root, &rt, &par, &children, &i);
 
         switch ( ev.type ) {
             case CreateNotify:

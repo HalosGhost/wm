@@ -2,6 +2,8 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <stdio.h>
+#include <syslog.h>
 
 #define max(a, b) (((a) > (b)) ? (a) : (b))
 
