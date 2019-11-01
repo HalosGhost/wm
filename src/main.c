@@ -4,6 +4,7 @@ signed
 main (int argc, char * argv []) {
 
     Display * dpy = 0;
+    signed status = EXIT_SUCCESS;
     if ( !(dpy = XOpenDisplay(0)) || argc < 1 ) { return EXIT_FAILURE; }
 
     // basename
@@ -27,7 +28,14 @@ main (int argc, char * argv []) {
     Window * children = 0;
     unsigned i = 0;
 
+    signal(SIGINT, signal_handler);
+    signal(SIGHUP, signal_handler);
+    signal(SIGQUIT, signal_handler);
+    signal(SIGTERM, signal_handler);
+
     do {
+        if ( !run_state ) { goto cleanup; }
+
         static XEvent ev;
         XNextEvent(dpy, &ev);
 
@@ -50,7 +58,17 @@ main (int argc, char * argv []) {
         }
     } while ( true );
 
-    closelog();
-    XCloseDisplay(dpy);
+    cleanup:
+        syslog(LOG_INFO, "stopping\n");
+        closelog();
+        XCloseDisplay(dpy);
+
+    return status;
+}
+
+void
+signal_handler (signed signum) {
+
+    run_state = !signum;
 }
 
