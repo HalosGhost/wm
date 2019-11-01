@@ -6,7 +6,13 @@ main (int argc, char * argv []) {
     Display * dpy = 0;
     if ( !(dpy = XOpenDisplay(0)) || argc < 1 ) { return EXIT_FAILURE; }
 
-    openlog(argv[0], 0, LOG_USER);
+    // basename
+    const char * progname = argv[0];
+    while ( progname && *progname ) { ++ progname; }
+    while ( progname != argv[0] && *(progname - 1) != '/' ) { -- progname; }
+
+    openlog(progname, 0, LOG_USER);
+    syslog(LOG_INFO, "running…\n");
 
     Window root = DefaultRootWindow(dpy);
 
@@ -37,7 +43,14 @@ main (int argc, char * argv []) {
                 if ( fork() != -1 && setsid() != -1 ) {
                     execv(*launcher, launcher);
                 } break;
+
+            case ClientMessage:
+                syslog(LOG_INFO, "Intercepted client messsage\n");
+                break;
         }
-    } while (true);
+    } while ( true );
+
+    closelog();
+    XCloseDisplay(dpy);
 }
 
