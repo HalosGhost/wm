@@ -28,7 +28,7 @@ static const struct view def_view = {
     .stack_count = 0
 };
 
-static volatile sig_atomic_t run_state = true;
+static volatile sig_atomic_t run_state;
 
 void
 signal_handler (signed);

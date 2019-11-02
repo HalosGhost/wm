@@ -26,7 +26,7 @@ main (int argc, char * argv []) {
             root, true, GrabModeAsync, GrabModeAsync);
 
     Window * children = 0;
-    unsigned i = 0;
+    unsigned num_children = 0;
 
     signal(SIGINT, signal_handler);
     signal(SIGHUP, signal_handler);
@@ -34,13 +34,21 @@ main (int argc, char * argv []) {
     signal(SIGTERM, signal_handler);
 
     do {
-        if ( !run_state ) { goto cleanup; }
-
         static XEvent ev;
         XNextEvent(dpy, &ev);
 
         static Window rt, par;
-        XQueryTree(dpy, root, &rt, &par, &children, &i);
+        XQueryTree(dpy, root, &rt, &par, &children, &num_children);
+
+        if ( run_state > 0 ) {
+            if ( run_state > 1 ) {
+                for ( size_t i = 0; i < num_children; ++ i ) {
+                    XKillClient(dpy, children[i]);
+                }
+            }
+
+            goto cleanup;
+        }
 
         switch ( ev.type ) {
             case CreateNotify:
@@ -56,6 +64,8 @@ main (int argc, char * argv []) {
                 syslog(LOG_INFO, "Intercepted client messsage\n");
                 break;
         }
+
+        XFree(children);
     } while ( true );
 
     cleanup:
@@ -69,6 +79,6 @@ main (int argc, char * argv []) {
 void
 signal_handler (signed signum) {
 
-    run_state = !signum;
+    run_state = 1 + (signum == SIGQUIT);
 }
 
